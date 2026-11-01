@@ -4,14 +4,22 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "node scripts/dev.ts",
+    "build": "tsc -b && vite build && vite build -c vite.preload.config.ts && vite build -c vite.main.config.ts",
     "lint": "oxlint",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "start": "pnpm build && electron .",
+    "package:dir": "pnpm build && electron-builder --dir",
+    "package": "pnpm build && electron-builder",
+    "package:mac:arm64": "pnpm build && electron-builder --mac --arm64",
+    "package:mac:x64": "pnpm build && electron-builder --mac --x64",
+    "package:mac:universal": "pnpm build && electron-builder --mac --universal",
+    "package:win:x64": "pnpm build && electron-builder --win --x64",
+    "package:win:arm64": "pnpm build && electron-builder --win --arm64",
+    "package:win:universal": "pnpm build && electron-builder --win --x64 --arm64",
+    "package:linux:x64": "pnpm build && electron-builder --linux --x64",
+    "package:linux:arm64": "pnpm build && electron-builder --linux --arm64"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
@@ -22,8 +30,26 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "babel-plugin-react-compiler": "^1.0.0",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
+    "oxfmt": "^0.76.0",
     "oxlint": "^1.89.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "typescript": "~7.0.2",
     "vite": "^8.3.5"
+  },
+  "main": "out/main/index.cjs",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^24.22.1",
+      "onFail": "download"
+    }
   }
 }

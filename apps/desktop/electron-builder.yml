@@ -1,0 +1,30 @@
+appId: app.joyx.chorus
+productName: desktop
+directories:
+  output: dist
+files:
+  - out/**
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false
+mac:
+  artifactName: ${productName}-${version}-macos-${arch}.${ext}
+dmg:
+  artifactName: ${productName}-${version}-macos-${arch}.${ext}
+nsis:
+  artifactName: ${productName}-${version}-windows-${arch}-setup.${ext}
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+appImage:
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
+deb:
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
+rpm:
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
