@@ -1,0 +1,6 @@
+# Generated folders.
+apps/desktop/dist/
+apps/desktop/out/
+apps/mobile/.expo/
+apps/mobile/android/
+apps/mobile/ios/

@@ -1,0 +1,121 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "rules": {
+    "max-lines": [
+      "error",
+      {
+        "max": 800
+      }
+    ],
+    "max-lines-per-function": [
+      "error",
+      {
+        "max": 300
+      }
+    ],
+    "complexity": ["error", 20],
+    "max-depth": ["error", 6],
+    "unicorn/filename-case": [
+      "error",
+      {
+        "cases": {
+          "camelCase": true,
+          "pascalCase": true
+        }
+      }
+    ],
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": ["error", "warn"]
+      }
+    ],
+    "curly": "error",
+    "no-shadow": "error",
+    "import/no-cycle": "error"
+  },
+  "ignorePatterns": ["apps/mobile/**"],
+  "overrides": [
+    {
+      "files": ["apps/desktop/src/renderer/**"],
+      "plugins": ["react"],
+      "rules": {
+        "react/forbid-dom-props": [
+          "error",
+          {
+            "forbid": ["title"]
+          }
+        ],
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "error",
+        "react/only-export-components": [
+          "warn",
+          {
+            "allowConstantExport": true
+          }
+        ],
+        "import/no-nodejs-modules": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "electron",
+                "message": "The renderer runs sandboxed; use the interface preload exposes."
+              }
+            ],
+            "patterns": [
+              {
+                "regex": "^electron/",
+                "message": "The renderer runs sandboxed; use the interface preload exposes."
+              },
+              {
+                "regex": "^(\\.\\./)+(main|preload)(/|$)",
+                "message": "The renderer does not import main-process or preload modules, so Node and Electron cannot reach it through them."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["apps/desktop/src/preload/**"],
+      "rules": {
+        "import/no-nodejs-modules": [
+          "error",
+          {
+            "allow": ["events", "timers", "url", "node:events", "node:timers", "node:url"]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["scripts/**", "**/*.test.{ts,tsx,js,mjs,cjs}"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["**/*.config.{ts,js,cjs,mjs}"],
+      "rules": {
+        "unicorn/filename-case": "off"
+      }
+    },
+    {
+      "files": ["scripts/**"],
+      "rules": {
+        "unicorn/filename-case": [
+          "error",
+          {
+            "cases": {
+              "kebabCase": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

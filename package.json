@@ -1,0 +1,42 @@
+{
+  "name": "chorus",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev:desktop": "pnpm --filter desktop dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "fmt:check": "oxfmt --check",
+    "lint": "pnpm lint:code && pnpm lint:mobile && pnpm lint:md",
+    "typecheck": "pnpm --filter desktop exec tsc -b && pnpm --filter mobile exec tsc",
+    "build": "pnpm --filter desktop build",
+    "check": "pnpm typecheck && pnpm lint && pnpm fmt:check && pnpm test && pnpm build",
+    "dev": "pnpm dev:desktop",
+    "dev:mobile:ios": "pnpm --filter mobile ios",
+    "dev:mobile:android": "pnpm --filter mobile android",
+    "lint:code": "oxlint --deny-warnings",
+    "lint:mobile": "pnpm --filter mobile lint",
+    "lint:md": "remark . --frail --quiet",
+    "test": "pnpm --filter mobile test",
+    "fmt": "oxfmt"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^24.22.1",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "remark-cli": "^12.0.1",
+    "remark-preset-lint-recommended": "^7.0.1",
+    "remark-validate-links": "^13.1.0"
+  }
+}

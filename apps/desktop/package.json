@@ -6,9 +6,6 @@
   "scripts": {
     "dev": "node scripts/dev.ts",
     "build": "tsc -b && vite build && vite build -c vite.preload.config.ts && vite build -c vite.main.config.ts",
-    "lint": "oxlint",
-    "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check",
     "start": "pnpm build && electron .",
     "package:dir": "pnpm build && electron-builder --dir",
     "package": "pnpm build && electron-builder",
@@ -25,31 +22,18 @@
     "@babel/core": "^7.29.7",
     "@rolldown/plugin-babel": "^0.2.4",
     "@types/babel__core": "^7.20.5",
-    "@types/node": "^24.19.2",
+    "@types/node": "catalog:",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "electron": "^45.2.1",
     "electron-builder": "^26.18.0",
-    "oxfmt": "^0.76.0",
-    "oxlint": "^1.89.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "typescript": "~7.0.2",
+    "typescript": "catalog:",
     "vite": "^8.3.5"
   },
   "main": "out/main/index.cjs",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12",
-      "onFail": "download"
-    },
-    "runtime": {
-      "name": "node",
-      "version": "^24.22.1",
-      "onFail": "download"
-    }
-  }
+  "license": "Apache-2.0"
 }

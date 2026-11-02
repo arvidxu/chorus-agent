@@ -1,0 +1,13 @@
+packages:
+  - apps/*
+  - packages/*/*
+
+allowBuilds:
+  '@parcel/watcher': false
+  electron-winstaller: false
+
+catalog:
+  '@types/node': ^24.19.2
+  oxfmt: ^0.76.0
+  oxlint: ^1.91.0
+  typescript: ~7.0.2
