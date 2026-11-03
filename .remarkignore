@@ -1,4 +1,6 @@
-# Generated folders.
+# Generated folders and other worktree checkouts.
+.claude/
+.worktrees/
 apps/desktop/dist/
 apps/desktop/out/
 apps/mobile/.expo/

@@ -1,0 +1,4 @@
+# Development data and mocks
+
+- Manage shared mocks centrally by business domain: generate test data with factories whose fields can be overridden, and maintain mock handlers for host protocols and external interfaces separately. Reuse existing factories and handlers rather than scattering the same fake data across pages or tests. When tests concern only some fields, let factories fill the rest instead of constructing data with `as` or `as unknown as`.
+- Select development-mock enablement and scenario profiles centrally in `apps/desktop/dev/`, rather than switching data sources on individual pages. Production runs must not enable development mocks or initialize development data; when enabling asynchronous mocks in development, wait for initialization before making dependent requests. Explicitly provided standalone product demo environments are exempt, but cannot serve as evidence of production or real-service verification.
