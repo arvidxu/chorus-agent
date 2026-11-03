@@ -32,6 +32,12 @@ export default defineConfig({
           environment: 'jsdom',
         },
       },
+      {
+        test: {
+          name: 'scripts',
+          include: ['scripts/**/*.test.mjs'],
+        },
+      },
       ...sharedPackages,
     ],
   },

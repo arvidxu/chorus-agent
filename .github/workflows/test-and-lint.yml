@@ -1,0 +1,85 @@
+name: Test and lint
+
+# The checks every change must pass, including the desktop startup test. The Check and Release
+# workflows call this one.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  # Reads the machines from the "release" section of product.conf.json, as the Release workflow's
+  # prepare job does; this job's own machine cannot come from them.
+  runners:
+    name: Read machines
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      runners: ${{ steps.runners.outputs.runners }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: package.json
+
+      - name: Read the machines
+        id: runners
+        env:
+          MAC_SELF_HOSTED_RUNNER: ${{ vars.MAC_SELF_HOSTED_RUNNER }}
+        run: node scripts/release/release.mjs runners
+
+  test-and-lint:
+    name: Test and lint
+    needs: [runners]
+    runs-on: ${{ fromJSON(needs.runners.outputs.runners).linux }}
+    timeout-minutes: 30
+    env:
+      EXPO_NO_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: package.json
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The desktop smoke test starts Electron with its sandbox on, which needs user namespaces.
+      - name: Allow unprivileged user namespaces
+        run: '! test -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns || echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns'
+
+      - name: Check
+        run: pnpm check
+
+      # Electron needs a display; xvfb-run provides a virtual one.
+      - name: Desktop startup smoke test
+        run: xvfb-run --auto-servernum pnpm test:e2e
+
+  # The desktop startup test on macOS and Windows, which have a display; the job above runs it on Linux.
+  desktop-e2e:
+    name: Desktop startup test (${{ matrix.system }})
+    needs: [runners]
+    strategy:
+      matrix:
+        system: [mac, windows]
+    runs-on: ${{ fromJSON(needs.runners.outputs.runners)[matrix.system] }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: package.json
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Desktop startup smoke test
+        run: pnpm test:e2e

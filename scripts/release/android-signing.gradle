@@ -1,0 +1,17 @@
+// Gradle init script used by scripts/release/mobile.mjs: signs release builds with the CI keystore
+// when one is configured; otherwise they keep the debug key the Expo template signs them with.
+allprojects { project ->
+    project.plugins.withId('com.android.application') {
+        project.extensions.getByName('androidComponents').finalizeDsl { android ->
+            def release = android.buildTypes.getByName('release')
+            if (System.getenv('ANDROID_SIGNING_ENABLED') == 'true') {
+                def signing = android.signingConfigs.create('ciRelease')
+                signing.storeFile = new File(System.getenv('ANDROID_KEYSTORE_PATH'))
+                signing.storePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                signing.keyAlias = System.getenv('ANDROID_KEY_ALIAS')
+                signing.keyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+                release.signingConfig = signing
+            }
+        }
+    }
+}

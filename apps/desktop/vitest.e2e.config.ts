@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitest/config'
 
-// Windows stay hidden, so a run leaves the developer's screen and focus alone. Linux shows them: it
-// always runs on a virtual display that nobody sees.
-const showsWindow = process.platform === 'linux'
+// Windows stay hidden only on a developer's machine, so a run leaves their screen and focus alone.
+// CI shows them, and Linux always runs on a virtual display that nobody sees.
+const showsWindow = process.platform === 'linux' || Boolean(process.env.CI)
 
 // Launches the built app, so plain `vitest run` and `vitest related` never pick it up. It skips
 // the shared test isolation: Electron keeps the machine's directories; the test sets its userData.

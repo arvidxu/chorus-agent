@@ -1,0 +1,30 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/test-and-lint.yml
+
+  # Starts the retry workflow only when the check failed or got no machine (GitHub marks that job
+  # cancelled). Pull requests from forks get a read-only token, which cannot start it.
+  retry:
+    name: Retry runner shortages
+    needs: [check]
+    if: ${{ !cancelled() && (needs.check.result == 'failure' || needs.check.result == 'cancelled') && !github.event.pull_request.head.repo.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+    steps:
+      - name: Start the retry workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run retry.yml -f run_id="$GITHUB_RUN_ID" -f run_attempt="$GITHUB_RUN_ATTEMPT"

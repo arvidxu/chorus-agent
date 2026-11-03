@@ -1,0 +1,47 @@
+name: Retry runner shortages
+
+# Reruns a Check or Release run whose jobs GitHub cancelled because no machine picked them up; any
+# real failure stops the retry. The number of attempts is release.retryAttempts in product.conf.json.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: The run to rerun
+        required: true
+      run_attempt:
+        description: The attempt of that run that failed
+        required: true
+
+permissions:
+  actions: write
+  checks: read
+  contents: read
+
+jobs:
+  rerun:
+    # Only the last step reads the settings, so this job's machine and time limit are fixed here.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: package.json
+
+      # GitHub reruns only a finished run, and the run that started this one is still finishing.
+      - name: Wait for the run to finish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: gh run watch "$RUN_ID" > /dev/null
+
+      - name: Rerun jobs that never got a machine
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+          RUN_ATTEMPT: ${{ inputs.run_attempt }}
+        run: node scripts/release/release.mjs retry

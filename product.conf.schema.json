@@ -1,12 +1,59 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Chorus product configuration",
-  "description": "Product name and desktop update checks, read by the desktop app.",
+  "description": "Product identity, versions, desktop update checks, and release settings, read by the apps and by scripts/release.",
   "type": "object",
   "properties": {
     "$schema": { "type": "string" },
+    "appId": {
+      "description": "Reverse-domain application ID: the macOS and Windows app ID, the iOS bundle identifier, and the Android package name. Changing it makes a different app in the stores.",
+      "type": "string",
+      "minLength": 1
+    },
     "name": {
-      "description": "Display name of the product, also used in window titles.",
+      "description": "Display name of the product, also used in window titles and file names of built packages.",
+      "type": "string",
+      "minLength": 1
+    },
+    "applicationName": {
+      "description": "Lowercase machine name: the Linux executable and package name, the Expo slug, and the mobile deep link scheme.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "versions": {
+      "description": "Versions of the two apps. A <version> tag (a bare version such as 1.2.3, without a v prefix) releases each app whose version equals the tag version.",
+      "type": "object",
+      "properties": {
+        "desktop": {
+          "description": "Desktop app version; may be a prerelease such as 1.2.0-beta.1.",
+          "type": "string",
+          "minLength": 1
+        },
+        "mobile": {
+          "description": "Mobile app version; must be a stable x.y.z version.",
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        }
+      },
+      "required": ["desktop", "mobile"]
+    },
+    "companyName": {
+      "description": "Author name written into the desktop packages.",
+      "type": "string",
+      "minLength": 1
+    },
+    "companyEmail": {
+      "description": "Author email written into the desktop packages; Linux packages show it as the maintainer.",
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "description": "One-line product description written into the desktop packages.",
+      "type": "string",
+      "minLength": 1
+    },
+    "homepage": {
+      "description": "Product homepage written into the desktop packages; Linux packages require it.",
       "type": "string",
       "minLength": 1
     },
@@ -51,7 +98,146 @@
         }
       },
       "required": ["firstCheckSeconds", "checkIntervalHours", "laterHours", "feeds"]
+    },
+    "release": {
+      "description": "Settings of the Release workflow; the prepare job checks them before anything is built.",
+      "type": "object",
+      "properties": {
+        "platforms": {
+          "description": "Which platforms a release builds. All five keys are required.",
+          "type": "object",
+          "properties": {
+            "mac": { "type": "boolean" },
+            "windows": { "type": "boolean" },
+            "linux": { "type": "boolean" },
+            "android": { "type": "boolean" },
+            "ios": { "type": "boolean" }
+          },
+          "required": ["mac", "windows", "linux", "android", "ios"],
+          "additionalProperties": false
+        },
+        "runners": {
+          "description": "GitHub Actions runner labels per system. The MAC_SELF_HOSTED_RUNNER repository variable overrides mac.",
+          "type": "object",
+          "properties": {
+            "linux": { "type": "string", "minLength": 1 },
+            "mac": { "type": "string", "minLength": 1 },
+            "windows": { "type": "string", "minLength": 1 }
+          },
+          "required": ["linux", "mac", "windows"]
+        },
+        "timeoutMinutes": {
+          "description": "Time limits of the release jobs, in minutes. build also limits how long the iOS signing keychain stays unlocked.",
+          "type": "object",
+          "properties": {
+            "build": { "type": "integer", "minimum": 1 },
+            "release": { "type": "integer", "minimum": 1 },
+            "googlePlay": { "type": "integer", "minimum": 1 },
+            "appStore": { "type": "integer", "minimum": 1 }
+          },
+          "required": ["build", "release", "googlePlay", "appStore"]
+        },
+        "artifactRetentionDays": {
+          "description": "Days GitHub keeps the built packages as run artifacts.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "retryAttempts": {
+          "description": "Attempts a run may reach through reruns of jobs that got no machine.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "desktop": {
+          "type": "object",
+          "properties": {
+            "scripts": {
+              "description": "apps/desktop package script run on each system to build the installers for all its architectures.",
+              "type": "object",
+              "properties": {
+                "mac": { "type": "string", "minLength": 1 },
+                "windows": { "type": "string", "minLength": 1 },
+                "linux": { "type": "string", "minLength": 1 }
+              },
+              "required": ["mac", "windows", "linux"]
+            },
+            "checkStartupSeconds": {
+              "description": "Seconds a packaged app must keep running in the release check before it is asked to stop.",
+              "type": "integer",
+              "minimum": 1
+            },
+            "checkStopSeconds": {
+              "description": "Seconds a packaged app may take to quit after the release check asks it to stop.",
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["scripts", "checkStartupSeconds", "checkStopSeconds"]
+        },
+        "mobile": {
+          "type": "object",
+          "properties": {
+            "androidArchitectures": {
+              "description": "Android ABIs compiled into the APK and AAB, such as arm64-v8a.",
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1
+            },
+            "javaVersion": {
+              "description": "Java version installed for the Android build.",
+              "type": "integer",
+              "minimum": 1
+            },
+            "javaDistribution": {
+              "description": "Java distribution name accepted by actions/setup-java, such as temurin.",
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["androidArchitectures", "javaVersion", "javaDistribution"]
+        },
+        "googlePlay": {
+          "type": "object",
+          "properties": {
+            "track": {
+              "description": "Google Play track the AAB is released to, such as production or internal.",
+              "type": "string",
+              "minLength": 1
+            },
+            "status": {
+              "description": "Release status on that track: completed sends it for review, draft leaves it for manual release.",
+              "enum": ["completed", "draft"]
+            },
+            "requestTimeoutMinutes": {
+              "description": "Time limit of each Google Play API request, in minutes.",
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["track", "status", "requestTimeoutMinutes"]
+        }
+      },
+      "required": [
+        "platforms",
+        "runners",
+        "timeoutMinutes",
+        "artifactRetentionDays",
+        "retryAttempts",
+        "desktop",
+        "mobile",
+        "googlePlay"
+      ]
     }
   },
-  "required": ["name", "updates"]
+  "required": [
+    "appId",
+    "name",
+    "applicationName",
+    "versions",
+    "companyName",
+    "companyEmail",
+    "description",
+    "homepage",
+    "updates",
+    "release"
+  ]
 }

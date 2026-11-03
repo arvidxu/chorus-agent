@@ -1,23 +1,25 @@
 extends: ./electron-builder.config.cjs
-appId: app.joyx.chorus
-productName: desktop
 directories:
   output: dist
 files:
   - out/**
-electronFuses:
-  runAsNode: false
-  enableNodeOptionsEnvironmentVariable: false
-  enableNodeCliInspectArguments: false
-  enableEmbeddedAsarIntegrityValidation: true
-  onlyLoadAppFromAsar: true
-  grantFileProtocolExtraPrivileges: false
 mac:
   artifactName: ${productName}-${version}-macos-${arch}.${ext}
 dmg:
   artifactName: ${productName}-${version}-macos-${arch}.${ext}
+win:
+  target:
+    - nsis
+    - portable
 nsis:
+  # One build of both architectures still makes a separate installer for each.
+  buildUniversalInstaller: false
+  oneClick: false
+  allowToChangeInstallationDirectory: true
   artifactName: ${productName}-${version}-windows-${arch}-setup.${ext}
+portable:
+  buildUniversalInstaller: false
+  artifactName: ${productName}-${version}-windows-${arch}-portable.${ext}
 linux:
   target:
     - AppImage

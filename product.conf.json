@@ -1,6 +1,16 @@
 {
   "$schema": "./product.conf.schema.json",
+  "appId": "app.joyx.chorus",
   "name": "Chorus",
+  "applicationName": "chorus",
+  "versions": {
+    "desktop": "0.0.0",
+    "mobile": "0.0.0"
+  },
+  "companyName": "Chorus",
+  "companyEmail": "example@example.com",
+  "description": "Chorus AI Agent",
+  "homepage": "https://github.com/arvidxu/chorus-agent",
   "updates": {
     "firstCheckSeconds": 5,
     "checkIntervalHours": 1,
@@ -11,5 +21,46 @@
         "page": "https://github.com/{releasesRepository}/releases/latest"
       }
     ]
+  },
+  "release": {
+    "platforms": {
+      "mac": true,
+      "windows": true,
+      "linux": true,
+      "android": true,
+      "ios": true
+    },
+    "runners": {
+      "linux": "ubuntu-latest",
+      "mac": "macos-latest",
+      "windows": "windows-latest"
+    },
+    "timeoutMinutes": {
+      "build": 150,
+      "release": 30,
+      "googlePlay": 30,
+      "appStore": 30
+    },
+    "artifactRetentionDays": 7,
+    "retryAttempts": 5,
+    "desktop": {
+      "scripts": {
+        "mac": "package:mac",
+        "windows": "package:win",
+        "linux": "package:linux"
+      },
+      "checkStartupSeconds": 15,
+      "checkStopSeconds": 10
+    },
+    "mobile": {
+      "androidArchitectures": ["arm64-v8a", "armeabi-v7a"],
+      "javaVersion": 21,
+      "javaDistribution": "temurin"
+    },
+    "googlePlay": {
+      "track": "production",
+      "status": "completed",
+      "requestTimeoutMinutes": 10
+    }
   }
 }

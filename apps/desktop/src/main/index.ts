@@ -39,9 +39,10 @@ function isAppPage(url: string) {
 }
 
 // A window that cannot load leaves nothing on screen, so the app reports the error and exits.
+// The dialog would block the exit that the release check relies on in CI.
 function reportStartupFailure(error: unknown) {
   console.error(`${app.name} could not open its main window.`, error)
-  if (!hidesWindows) {
+  if (process.env.CI === undefined && !hidesWindows) {
     dialog.showErrorBox(`${app.name} could not start`, String(error))
   }
   app.exit(1)
