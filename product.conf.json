@@ -1,0 +1,15 @@
+{
+  "$schema": "./product.conf.schema.json",
+  "name": "Chorus",
+  "updates": {
+    "firstCheckSeconds": 5,
+    "checkIntervalHours": 1,
+    "laterHours": 24,
+    "feeds": [
+      {
+        "url": "https://github.com/{releasesRepository}/releases/latest/download",
+        "page": "https://github.com/{releasesRepository}/releases/latest"
+      }
+    ]
+  }
+}

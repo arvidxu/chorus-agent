@@ -1,3 +1,4 @@
+extends: ./electron-builder.config.cjs
 appId: app.joyx.chorus
 productName: desktop
 directories:

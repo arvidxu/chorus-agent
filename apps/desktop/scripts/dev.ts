@@ -1,4 +1,5 @@
 import { type ChildProcess, spawn } from 'node:child_process'
+import { once } from 'node:events'
 import electronPath from 'electron'
 import { build, createServer } from 'vite'
 
@@ -21,15 +22,37 @@ const stop = async (code = 0) => {
   process.exit(code)
 }
 
-const restartElectron = () => {
-  electron?.removeAllListeners('exit')
-  electron?.kill()
+const stopElectron = async () => {
+  const running = electron
+  if (running === undefined || running.exitCode !== null || running.signalCode !== null) {
+    return
+  }
+  running.removeAllListeners('exit')
+  const exited = once(running, 'exit')
+  running.kill()
+  await exited
+}
+
+const startElectron = () => {
   electron = spawn(String(electronPath), ['.'], { stdio: 'inherit' })
   electron.on('exit', (code) => stop(code ?? 1))
   electron.on('error', (error) => {
     console.error(error)
     stop(1)
   })
+}
+
+// The app holds a single-instance lock, so a new Electron process starts only after the old one has
+// exited; restarts triggered in quick succession run one after another.
+let restarting = Promise.resolve()
+const restartElectron = () => {
+  restarting = restarting
+    .then(stopElectron)
+    .then(startElectron)
+    .catch((error: unknown) => {
+      console.error(error)
+      return stop(1)
+    })
 }
 
 const watch = (configFile: string, onBuild: () => void) =>

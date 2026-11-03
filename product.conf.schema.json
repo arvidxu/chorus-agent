@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chorus product configuration",
+  "description": "Product name and desktop update checks, read by the desktop app.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": {
+      "description": "Display name of the product, also used in window titles.",
+      "type": "string",
+      "minLength": 1
+    },
+    "updates": {
+      "description": "How the desktop app checks for updates.",
+      "type": "object",
+      "properties": {
+        "firstCheckSeconds": {
+          "description": "Seconds after start before the first update check.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "checkIntervalHours": {
+          "description": "Hours between later update checks.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "laterHours": {
+          "description": "Hours before a version the user postponed with Later is offered again.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "feeds": {
+          "description": "Update feeds, tried in order until one answers. {releasesRepository} is replaced with the releases repository in CI; a feed that still has a placeholder is left out of the build.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "description": "Address of the electron-updater generic feed that holds the update info files.",
+                "type": "string",
+                "minLength": 1
+              },
+              "page": {
+                "description": "Release page opened when the app cannot install updates itself.",
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["url", "page"]
+          }
+        }
+      },
+      "required": ["firstCheckSeconds", "checkIntervalHours", "laterHours", "feeds"]
+    }
+  },
+  "required": ["name", "updates"]
+}

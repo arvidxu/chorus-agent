@@ -8,7 +8,7 @@
     "dev:mobile": "pnpm --filter mobile start",
     "fmt:check": "oxfmt --check",
     "lint": "pnpm lint:code && pnpm lint:mobile && pnpm lint:md",
-    "typecheck": "pnpm --filter desktop exec tsc -b && pnpm --filter mobile exec tsc",
+    "typecheck": "tsc && pnpm --filter desktop exec tsc -b && pnpm --filter mobile exec tsc",
     "build": "pnpm --filter desktop build",
     "check": "pnpm typecheck && pnpm lint && pnpm fmt:check && pnpm test && pnpm build",
     "dev": "pnpm dev:desktop",
@@ -17,8 +17,9 @@
     "lint:code": "oxlint --deny-warnings",
     "lint:mobile": "pnpm --filter mobile lint",
     "lint:md": "remark . --frail --quiet",
-    "test": "pnpm --filter mobile test",
-    "fmt": "oxfmt"
+    "test": "vitest run && pnpm --filter mobile test",
+    "fmt": "oxfmt",
+    "test:e2e": "pnpm build && vitest run --config apps/desktop/vitest.e2e.config.ts"
   },
   "devEngines": {
     "packageManager": {
@@ -33,10 +34,14 @@
     }
   },
   "devDependencies": {
+    "@types/node": "catalog:",
+    "jsdom": "^30.1.3",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "remark-cli": "^12.0.1",
     "remark-preset-lint-recommended": "^7.0.1",
-    "remark-validate-links": "^13.1.0"
+    "remark-validate-links": "^13.1.0",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
